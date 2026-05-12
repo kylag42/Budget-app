@@ -8,6 +8,7 @@ export const columns: ColumnDef<Transaction>[] = [
         header: ({table}) => (
             <input
             type="checkbox"
+            className="w-5 h-5"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()} />
         ),
@@ -15,6 +16,7 @@ export const columns: ColumnDef<Transaction>[] = [
         cell: ({ row }) => (
             <input
             type="checkbox"
+            className="w-5 h-5"
             checked={row.getIsSelected()}
             onChange={row.getToggleSelectedHandler()} />
         ),
@@ -24,12 +26,11 @@ export const columns: ColumnDef<Transaction>[] = [
         header: "Date",
 
          cell: ({ row }) => {
-             const formatted = new Intl.DateTimeFormat("en-US", {
+             const [year, month,day] = row.original.date.split("-").map(Number)
+               return  new Intl.DateTimeFormat("en-US" , {
                 month: "short",
                 day: "numeric",
-            }).format(new Date(row.original.date))
-
-            return formatted
+               }).format(new Date(year, month - 1, day))
     },
 },
     {
@@ -54,7 +55,7 @@ export const columns: ColumnDef<Transaction>[] = [
         cell: ({row}) => {
             const amount = row.original.amount
             return (
-                <span className={amount < 0 ? "text-red-500" : "text-green-500"}>
+                <span className={amount < 0 ? "text-[#ab002b]" : "text-[#226000]"}>
                     {amount}
                 </span>
             )

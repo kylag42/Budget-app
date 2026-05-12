@@ -7,7 +7,7 @@ export const mockTransactions: Transaction[] = [
     description: "boba milk tea",
     merchant: "Boba Time",
     category: "Food",
-    account: "Chase Checkings",
+    account: "Checking",
     amount: -6.5
   },
   {
@@ -16,7 +16,7 @@ export const mockTransactions: Transaction[] = [
     description: "airport ride",
     merchant: "Uber",
     category: "Transport",
-    account: "Chase Checkings",
+    account: "Credit Card",
     amount: -18.2,
   },
   {
@@ -25,7 +25,7 @@ export const mockTransactions: Transaction[] = [
     description: "Bi-weekly paycheck",
     merchant: "Salary",
     category: "Income",
-    account: "Chase Checkings",
+    account: "Checking",
     amount: 2500,
   },
   {
@@ -34,7 +34,7 @@ export const mockTransactions: Transaction[] = [
     description: "dinner",
     merchant: "Taco Bell",
     category: "Food",
-    account: "Chase Checkings",
+    account: "Savings",
     amount: -10.85,
   },
   {
@@ -43,8 +43,206 @@ export const mockTransactions: Transaction[] = [
     description: "gas",
     merchant: "Shell",
     category: "Transport",
-    account: "Chase Checkings",
-    amount: 55.86,
+    account: "Checking",
+    amount: -55.86,
   },
+
+  {
+    id: "6",
+    date: "2026-05-05",
+    description: "pizza",
+    merchant: "Dominos",
+    category: "Food",
+    account: "Checking",
+    amount: -20.86,
+  },
+
+  {
+    id: "7",
+    date: "2026-05-07",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "8",
+    date: "2026-05-17",
+    description: "Bi-weekly paycheck",
+    merchant: "Salary",
+    category: "Income",
+    account: "Checking",
+    type: "income",
+    amount: 2500,
+  },
+
+  {
+    id: "9",
+    date: "2026-05-17",
+    description: "lyft to work",
+    merchant: "Lyft",
+    category: "Transport",
+    account: "Checking",
+    amount: -25.38,
+  },
+
+  {
+    id: "10",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "11",
+    date: "2026-05-18",
+    description: "lunch",
+    merchant: "Whole Foods",
+    category: "Food",
+    account: "Checking",
+    amount: -15.22,
+  },
+  {
+    id: "12",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+  {
+    id: "13",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+  {
+    id: "10",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+  {
+    id: "10",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "14",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "15",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "16",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "17",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "18",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "19",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "20",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "21",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+  {
+    id: "22",
+    date: "2026-05-04",
+    description: "gas",
+    merchant: "Shell",
+    category: "Transport",
+    account: "Checking",
+    amount: -55.86,
+  },
+
+{
+    id: "23",
+    date: "2026-05-31",
+    description: "bi-weekly paycheck",
+    merchant: "Salary",
+    category: "Income",
+    account: "Checking",
+    amount: 2500,
+  },
+
 
 ]
