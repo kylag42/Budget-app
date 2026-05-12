@@ -119,10 +119,20 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+@theme {
+  --color-accent-red: #800100;
+  --color-custom-yellow: #fffee0;
+  --color-base-brown: #E3C1A8;
+  --color-accent-brown: #954B00;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
     }
+  html {
+    font-size: 22px;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: "Fuzzy Bubbles", sans-serif;

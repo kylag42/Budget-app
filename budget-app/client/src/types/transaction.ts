@@ -6,4 +6,6 @@ export type Transaction = {
     category: string
     account: string
     amount: number
+    type?: "expense" | "income" | "transfer"
+    transferTo?: string
 }
