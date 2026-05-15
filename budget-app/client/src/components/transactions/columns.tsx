@@ -1,6 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import type { Transaction } from "@/types/transaction"
-import { useEffect, useRef } from "react"
 
 export const columns: ColumnDef<Transaction>[] = [ 
     {
