@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react"
-import type { Transaction } from "@/types/transaction"
+import { useState} from "react"
+import type { Transaction, TransactionInput } from "@/types/transaction"
 import type { TransactionFormState } from "@/types/form"
+
 
 type Props = {
     initial?: Partial<Transaction>
-    onSubmit: (tx: Transaction) => void
+    onSubmit: (tx: TransactionInput) => void
 }
 
 export default function TransactionForm({
@@ -35,8 +36,7 @@ export default function TransactionForm({
                 ? -Math.abs(parsedAmount)
                 : Math.abs(parsedAmount)
 
-        const newTransaction: Transaction = {
-            id: initial?.id ?? crypto.randomUUID(),
+        const baseTransaction: TransactionInput = {
             date: form.date,
             merchant: form.merchant,
             description: form.description || form.merchant,
@@ -45,7 +45,11 @@ export default function TransactionForm({
             amount: normalizedAmount,
             type: form.type,
         }
-        onSubmit(newTransaction)
+         const transaction = initial?.id ? {
+            ...baseTransaction, id: initial.id 
+         } : baseTransaction
+
+         onSubmit(transaction)
     }
 
     const update = (field: keyof TransactionFormState, value: string) => {

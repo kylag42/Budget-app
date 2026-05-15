@@ -15,7 +15,7 @@ import {
     ArrowDown,
     ArrowUpDown,
 } from "lucide-react"
-import AddTransactionModal from "./AddTransactionModal"
+
 
 type Props = {
     data: Transaction[]

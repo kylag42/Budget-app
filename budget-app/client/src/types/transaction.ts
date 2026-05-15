@@ -9,3 +9,5 @@ export type Transaction = {
     type?: "expense" | "income" | "transfer"
     transferTo?: string
 }
+
+export type TransactionInput = Omit<Transaction, "id">

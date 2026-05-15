@@ -1,40 +1,60 @@
-import { useState } from "react"
-import { mockTransactions } from "@/data/mockTransactions"
-import type { Transaction } from "@/types/transaction"
+import { useState, useEffect } from "react"
+import type { Transaction, TransactionInput } from "@/types/transaction"
 import TransactionTable from "@/components/transactions/TransactionTable"
 import bg from "@/assets/beige-bg.png"
-import {
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-} from "lucide-react"
 import AddTransactionModal from "@/components/transactions/AddTransactionModal"
 import TransactionForm from "@/components/transactions/TransactionForm"
 import TransactionSummaryCards from "@/components/transactions/TransactionSummaryCards"
 import TransactionFilters from "@/components/transactions/TransactionFilters"
+import { getTransactions, createTransaction, updateTransaction as updateTransactionAPI, deleteTransaction as deleteTransactionAPI } from "../api/transactions"
+
+
 
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
   const [account, setAccount] = useState("all")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
 
-  const deleteTransactions = (ids: string[]) => {
+  useEffect(() => {
+    getTransactions().then(setTransactions)
+  }, [])
+
+  useEffect(() => {
+    getTransactions().then((data) => {
+      console.log("FROM FIREBASE:", data) 
+      setTransactions(data)})
+    }, [])
+
+
+  const deleteTransactions = async (ids: string[]) => {
+    await Promise.all(
+      ids.map((id) => deleteTransactionAPI(id))
+    )
+    
     setTransactions((prev) =>
       prev.filter((t) => !ids.includes(t.id)))
   }
 
-  const addTransaction = (transaction: Transaction) => {
-    setTransactions((prev) => [transaction, ...prev])
+  const addTransaction = async (tx: TransactionInput) => {
+    const created = await createTransaction(tx)
+
+    setTransactions((prev) => [created, ...prev])
   }
 
-  const updateTransaction = (updated: Transaction) => {
+  const updateTransaction = async (updated: Transaction) => {
+      const saved = await updateTransactionAPI(
+        updated.id, 
+        updated
+      )
+    
+    
     setTransactions((prev) =>
       prev.map((t) =>
-        t.id === updated.id ? updated : t
+        t.id === saved.id ? saved : t
       )
     )
   }
@@ -76,7 +96,7 @@ const mode = editingTransaction ? "edit" : "add"
         style={{ backgroundImage: `url(${bg})` }}
       />
       <div className="relative p-6 space-y-4">
-        <h1 className="text-3xl text-custom-yellow bg-accent-brown shadow-2xl border-4 border-accent-brown font-semibold  px-3 py-2 rounded inline-block">
+        <h1 className="text-lg text-custom-yellow bg-accent-brown shadow-2xl border-4 border-accent-brown font-semibold  px-3 py-2 rounded inline-block">
           All Transactions
         </h1>
         <TransactionSummaryCards
@@ -113,14 +133,16 @@ const mode = editingTransaction ? "edit" : "add"
           >
           <TransactionForm
             initial={editingTransaction ?? undefined}
-            onSubmit={(tx) => {
+            onSubmit={async (tx) => {
 
               if (editingTransaction) {
-                updateTransaction(tx)
-              } else {
-                addTransaction(tx)
+                await updateTransaction({
+                  ...tx,
+                id: editingTransaction.id,
+              })
+             } else {
+                await addTransaction(tx)
               }
-
               setIsModalOpen(false)
             }}
           />
