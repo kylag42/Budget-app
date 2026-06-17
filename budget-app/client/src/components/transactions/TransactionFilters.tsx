@@ -1,58 +1,81 @@
+import type {Category, Account} from "@/types";
 
 type Props = {
-    search: string
-    setSearch: (value: string) => void
-    
-    category: string
-    setCategory: (value: string) => void
+  search: string
+  setSearch: (v: string) => void
 
-    account: string
-    setAccount: (value:string) => void
+  category: string
+  setCategory: (v: string) => void
+
+  accountId: string
+  setAccount: (v: string) => void
+
+  categories: Category[]
+  accounts: Account[]
 }
 
-
-
 export default function TransactionFilters({
-    search,
-    setSearch,
-    category,
-    setCategory,
-    account,
-    setAccount,
+  search,
+  setSearch,
+  category,
+  setCategory,
+  accountId,
+  setAccount,
+  categories,
+  accounts,
 }: Props) {
-    return (
-        <div className="flex gap-3">
-                <input 
-                className="border-2 border-[#800100] p-2 rounded w-64 placeholder:font-bold bg-base-brown"
-                placeholder="Search transactions..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                />
-        
-                <select
-                className="border-2 border-[#800100] p-2 rounded"
-                value={account}
-                onChange={(e) => setAccount(e.target.value)}
-                >
-                  <option value="all">All accounts</option>
-                  <option value="Checking">Checking</option>
-                  <option value="Savings">Savings</option>
-                  <option value="Credit Card">Credit Card</option>
-                </select>
-        
-                <select
-                className="border-2 border-accent-red p-2 rounded"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="all">All categories</option>
-                  <option value="Income">Income</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Food">Food</option>
-                  <option value="Transfer">Transfer</option>
-                </select>
-                
-              </div>
-        
-    )
+  return (
+    <div className="flex gap-3 flex-wrap">
+
+      <input
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+        placeholder="Search transactions..."
+        className="border border-accent-brown bg-base-brown p-2 rounded"
+      />
+
+      <select
+        value={category}
+        onChange={(e) =>
+          setCategory(e.target.value)
+        }
+        className="border border-accent-brown bg-base-brown p-2 rounded"
+      >
+        <option value="all">
+          All Categories
+        </option>
+
+        {categories.map((c) => (
+          <option
+          key={c.id}
+          value={c.id}
+          >
+            {c.name}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={accountId}
+        onChange={(e) =>
+          setAccount(e.target.value)
+        }
+        className="border border-accent-brown bg-base-brown p-2 rounded"
+      >
+        <option value="all">
+          All Accounts
+        </option>
+        {accounts.map((a) => (
+          <option
+          key={a.id}
+          value={a.id}
+          >
+            {a.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
 }
