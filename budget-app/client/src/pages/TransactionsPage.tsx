@@ -1,156 +1,267 @@
-import { useState, useEffect } from "react"
-import type { Transaction, TransactionInput } from "@/types/transaction"
+import { useState } from "react"
+
 import TransactionTable from "@/components/transactions/TransactionTable"
-import bg from "@/assets/beige-bg.png"
-import AddTransactionModal from "@/components/transactions/AddTransactionModal"
-import TransactionForm from "@/components/transactions/TransactionForm"
-import TransactionSummaryCards from "@/components/transactions/TransactionSummaryCards"
 import TransactionFilters from "@/components/transactions/TransactionFilters"
-import { getTransactions, createTransaction, updateTransaction as updateTransactionAPI, deleteTransaction as deleteTransactionAPI } from "../api/transactions"
 
+import AddTransactionModal from "@/components/modals/AddTransactionModal"
+import AddCategoryModal from "@/components/modals/AddCategoryModal"
+import AddAccountModal from "@/components/modals/AddAccountModal"
+import TransactionForm from "@/components/transactions/TransactionForm"
 
+import { useTransactions } from "@/hooks/useTransactions"
+import { useCategories } from "@/hooks/useCategories"
+import { useAccounts } from "@/hooks/useAccounts"
 
+import type { Transaction } from "@/types/transaction"
+import bg from "@/assets/beige-bg.png"
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const {
+    transactions,
+    addTransaction,
+    editTransaction,
+    deleteTransaction,
+  } = useTransactions()
+
+  const { categories } = useCategories()
+  const { accounts } = useAccounts()
+
+  // -----------------------
+  // UI STATE
+  // -----------------------
   const [search, setSearch] = useState("")
-  const [category, setCategory] = useState("all")
-  const [account, setAccount] = useState("all")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+  const [category, setCategory] =
+    useState("all")
+  const [account, setAccount] =
+    useState("all")
 
-  useEffect(() => {
-    getTransactions().then(setTransactions)
-  }, [])
+  const [isModalOpen, setIsModalOpen] =
+    useState(false)
 
-  useEffect(() => {
-    getTransactions().then((data) => {
-      console.log("FROM FIREBASE:", data) 
-      setTransactions(data)})
-    }, [])
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false)
 
+  const [editingTx, setEditingTx] =
+    useState<Transaction | null>(null)
 
-  const deleteTransactions = async (ids: string[]) => {
-    await Promise.all(
-      ids.map((id) => deleteTransactionAPI(id))
-    )
-    
-    setTransactions((prev) =>
-      prev.filter((t) => !ids.includes(t.id)))
+  const [type, setType] =
+    useState<"income" | "expense">("expense")
+
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [categoryId, setCategoryId] = useState("")
+  const [accountId, setAccountId] = useState("")
+
+  const openTransactionModal = (tx?: Transaction) => {
+    setEditingTx(tx ?? null)
+
+    setType(tx?.type ?? "expense")
+    setCategoryId(tx?.categoryId ?? "")
+    setAccountId(tx?.accountId ?? "")
+
+    setIsModalOpen(true)
   }
 
-  const addTransaction = async (tx: TransactionInput) => {
-    const created = await createTransaction(tx)
+  // -----------------------
+  // FILTERS
+  // -----------------------
+  const filtered = transactions.filter(
+    (t) => {
+      const query =
+        search.toLowerCase()
 
-    setTransactions((prev) => [created, ...prev])
-  }
+      const matchesSearch =
+        t.merchant
+          .toLowerCase()
+          .includes(query) ||
+        t.description
+          .toLowerCase()
+          .includes(query)
 
-  const updateTransaction = async (updated: Transaction) => {
-      const saved = await updateTransactionAPI(
-        updated.id, 
-        updated
+      const matchesAccount =
+        account === "all" ||
+        t.accountId === account
+
+      const matchesCategory =
+        category === "all" ||
+        t.categoryId === category
+
+      return (
+        matchesSearch &&
+        matchesAccount &&
+        matchesCategory
       )
-    
-    
-    setTransactions((prev) =>
-      prev.map((t) =>
-        t.id === saved.id ? saved : t
+    }
+  )
+
+  // -----------------------
+  // SUBMIT
+  // -----------------------
+  const handleSubmit = async (
+    data: Omit<
+      Transaction,
+      "id" | "userId"
+    >
+  ) => {
+    if (editingTx) {
+      await editTransaction(
+        editingTx.id,
+        data
       )
-    )
+    } else {
+      await addTransaction(data)
+    }
+
+    setIsModalOpen(false)
+    setEditingTx(null)
   }
 
-const mode = editingTransaction ? "edit" : "add"
 
-
-  //account and category filters
-  const filteredTransactions = transactions.filter((t) => {
-    const query = search.toLowerCase()
-
-    const matchesSearch =
-      t.merchant.toLowerCase().includes(query) ||
-      t.description.toLowerCase().includes(query) ||
-      t.account.toLowerCase().includes(query) ||
-      t.amount.toString().includes(search)
-
-
-    const matchesCategory =
-      category === "all" ||
-      t.category === category ||
-      (category === "Transfer" && t.category === "Transfer")
-
-    const matchesAccount =
-      account === "all" ||
-      t.account === account
-
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesAccount
-    )
-  })
 
   return (
-    <div className="relative min-h-screen">
-      <div
-        className="absolute inset-0 bg-cover bg-center -z-10"
-        style={{ backgroundImage: `url(${bg})` }}
-      />
-      <div className="relative p-6 space-y-4">
-        <h1 className="text-lg text-custom-yellow bg-accent-brown shadow-2xl border-4 border-accent-brown font-semibold  px-3 py-2 rounded inline-block">
-          All Transactions
-        </h1>
-        <TransactionSummaryCards
-          transactions={transactions}
-        />
+    <div
+      className="
+      min-h-screen
+      bg-cover
+      bg-center
+      bg-no-repeat
+      relative
+    "
+      style={{ backgroundImage: `url(${bg})` }}
+    >
+      <div className="p-6 space-y-4">
 
-        {/* search bar and filtering dropdowns */}
+
+        <h1 className="inline-block text-xl font-bold text-white bg-accent-brown p-3 rounded">
+          Transactions
+        </h1>
+
         <TransactionFilters
           search={search}
           setSearch={setSearch}
           category={category}
           setCategory={setCategory}
-          account={account}
-          setAccount={setAccount} />
+          accountId={account}
+          setAccount={setAccount}
+          categories={categories}
+          accounts={accounts}
+        />
 
-        {/*table rendering */}
-        <div className="rounded-2xl shadow-md bg-base-brown">
-          <TransactionTable data={filteredTransactions}
-            onDeleteSelected={deleteTransactions}
-            onAdd={() => {
+        {/* ACTION BUTTONS */}
+
+        <div className="flex gap-3 -mb-1 bg-accent-brown p-2 rounded">
+
+          {/* ADD */}
+          <button
+            onClick={() => {
+              setEditingTx(null)
+              setType("expense")
               setIsModalOpen(true)
-              setEditingTransaction(null)
             }}
-            onEdit={(transaction => {
-              setEditingTransaction(transaction)
-              setIsModalOpen(true)
-            })}
-          />
+            className="bg-base-brown  px-3 py-2 rounded"
+          >
+            + Add
+          </button>
+
+          {/* EDIT */}
+          <button
+            disabled={selectedIds.length !== 1}
+            onClick={() => {
+              const tx = transactions.find(
+                (t) => t.id === selectedIds[0]
+              )
+
+              if (!tx) return
+
+              openTransactionModal(tx)
+            }}
+            className="border px-3 py-2 rounded disabled:opacity-50"
+          >
+            Edit
+          </button>
+
+          {/* DELETE (BULK SAFE) */}
+          <button
+            disabled={
+              selectedIds.length === 0
+            }
+            onClick={async () => {
+              await Promise.all(
+                selectedIds.map((id) =>
+                  deleteTransaction(id)
+                )
+              )
+
+              setSelectedIds([])
+            }}
+            className="text-red-500 border px-3 py-2 rounded disabled:opacity-50"
+          >
+            Delete
+          </button>
+          <div className="flex items-center justify-between">
+            {/* LEFT: selection info */}
+            <div className="text-sm opacity-70">
+              {selectedIds.length > 0
+                ? `${selectedIds.length} selected`
+                : "No selection"}
+            </div>
+
+          </div>
         </div>
+
+        {/* TABLE */}
+        <TransactionTable
+          transactions={filtered}
+          accounts={accounts}
+          categories={categories}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+
+          onEdit={(tx) => openTransactionModal(tx)}
+          
+          onDelete={deleteTransaction}
+        />
+
+        {/* MODAL */}
         <AddTransactionModal
           open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          mode={mode}
-          >
+          onClose={() => {
+            setIsModalOpen(false)
+            setEditingTx(null)
+          }}
+          type={type}
+          setType={setType}
+        >
           <TransactionForm
-            initial={editingTransaction ?? undefined}
-            onSubmit={async (tx) => {
+            type={type}
+            setType={setType}
+            categories={categories}
+            accounts={accounts}
+            initial={editingTx ?? undefined}
+            onSubmit={handleSubmit}
 
-              if (editingTransaction) {
-                await updateTransaction({
-                  ...tx,
-                id: editingTransaction.id,
-              })
-             } else {
-                await addTransaction(tx)
-              }
-              setIsModalOpen(false)
-            }}
+            setIsCategoryModalOpen={setIsCategoryModalOpen}
+            setIsAccountModalOpen={setIsAccountModalOpen}
+
+            categoryId={categoryId}
+            setCategoryId={setCategoryId}
+
+            accountId={accountId}
+            setAccountId={setAccountId}
           />
         </AddTransactionModal>
+        <AddCategoryModal
+          open={isCategoryModalOpen}
 
+          onClose={() => setIsCategoryModalOpen(false)}
+          onCreated={(id) => setCategoryId(id)}
+        />
 
+        <AddAccountModal
+          open={isAccountModalOpen}
+          onClose={() => setIsAccountModalOpen(false)}
+          onCreated={(id) => setAccountId(id)}
+        />
       </div>
     </div>
-
   )
 }

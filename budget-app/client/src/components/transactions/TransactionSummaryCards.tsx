@@ -1,66 +1,67 @@
-import {
-    calculateIncome,
-    calculateExpenses,
-    calculateNetCashFlow,
-    calculateBalance,
-} from "@/lib/finance/transactionCalculations"
-
 import type { Transaction } from "@/types/transaction"
+import {
+  getTotalIncome,
+  getTotalExpenses,
+} from "@/services/transactions/transactionCalculations"
 
 type Props = {
-    transactions: Transaction[]
+  transactions: Transaction[]
 }
 
 export default function TransactionSummaryCards({
-    transactions,
+  transactions,
 }: Props) {
+  const income =
+    getTotalIncome(transactions)
 
-const income = calculateIncome(transactions)
-const expenses = calculateExpenses(transactions)
-const netCashFlow = calculateNetCashFlow(transactions)
-const currentBalance = calculateBalance(transactions)
+  const expenses =
+    getTotalExpenses(transactions)
 
-return (
-<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#954B00]/60 rounded-2xl shadow p-4">
-          <p className="text-md text-gray-800">
-            Income
-          </p>
+  const net = income - expenses
 
-          <h2 className="text-lg font-semibold text-[#226000]">
-            ${income.toFixed(2)}
-          </h2>
+  return (
+      <div className="bg-base-brown/80 rounded-xl overflow-hidden">
+            <div className="bg-accent-brown px-4 py-3">
+      <h2 className="text-lg font-semibold text-white">
+        Monthly Snapshot
+        </h2>
         </div>
 
-        <div className="bg-[#954B00]/60 rounded-2xl shadow p-4">
-          <p className="text-md text-gray-800">
-            Expenses
-          </p>
-          <h2 className="text-lg font-semibold text-red-800">
-            ${Math.abs(expenses).toFixed(2)}
-          </h2>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 m-4">
+      <Card
+        label="Income"
+        value={`$${income}`}
+      />
 
-        <div className="bg-[#954B00]/60 rounded-2xl shadow p-4">
-          <p className="text-md text-gray-800">
-            Net Cash Flow
-          </p>
+      <Card
+        label="Expenses"
+        value={`$${expenses}`}
+      />
 
-          <h2 className="text-lg font-semibold">
-            ${netCashFlow.toFixed(2)}
-          </h2>
-        </div>
+      <Card
+        label="Net"
+        value={`$${net}`}
+      />
+    </div>
+    </div>
+  )
+}
 
-        <div className="bg-[#954B00]/60 rounded-2xl shadow p-4">
-          <p className="text-md text-gray-800">
-            Current Balance
-          </p>
-
-          <h2 className="text-lg font-semibold">
-            ${currentBalance.toFixed(2)}
-          </h2>
-        </div>
-      </div>
-      )
-
+function Card({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
+  return (
+    <div className="p-4 bg-accent-brown/70 rounded shadow">
+      <p className="text-sm text-white opacity-80">
+        {label}
+      </p>
+      <p className="text-xl font-bold text-white">
+        {value}
+      </p>
+    </div>
+  )
 }

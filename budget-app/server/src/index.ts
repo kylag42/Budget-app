@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import transactionRoutes from "./routes/transactionRoutes.js"
+import categoryRoutes from "./routes/categoryRoutes.js"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -19,3 +20,4 @@ app.listen(3001, () => {
 })
 
 app.use("/transactions", transactionRoutes)
+app.use("/categories", categoryRoutes)

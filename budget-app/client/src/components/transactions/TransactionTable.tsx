@@ -1,151 +1,313 @@
+import type { Transaction, Account, Category } from "@/types"
 import {
-    useReactTable,
-    getCoreRowModel,
-    getSortedRowModel,
     flexRender,
-    type SortingState,
-    type RowSelectionState,
+    getCoreRowModel,
     getPaginationRowModel,
+    useReactTable,
+    createColumnHelper,
+    getSortedRowModel,
+    type SortingState,
 } from "@tanstack/react-table"
 import { useState } from "react"
-import { columns } from "./columns"
-import type { Transaction } from "@/types/transaction"
-import {
-    ArrowUp,
-    ArrowDown,
-    ArrowUpDown,
-} from "lucide-react"
+
 
 
 type Props = {
-    data: Transaction[]
-    onDeleteSelected: (ids: string[]) => void
-    onAdd: () => void
-    onEdit: (transaction: Transaction) => void
+    transactions: Transaction[]
+    accounts: Account[]
+    categories: Category[]
+    selectedIds: string[]
+    setSelectedIds: (
+        updater:
+            string[] |
+            ((prev: string[]) => string[])
+    ) => void
+
+    onEdit: (tx: Transaction) => void
+    onDelete: (id: string) => void
 }
 
-export default function TransactionTable({ data, onDeleteSelected, onAdd, onEdit }: Props) {
+export default function TransactionTable({
+    transactions,
+    accounts,
+    categories,
+    selectedIds,
+    setSelectedIds,
+}: Props) {
+
+    const categoryMap = new Map(
+        categories.map((c) => [c.id, c.name])
+    )
+
+    const accountMap = new Map(
+        accounts.map((a) => [a.id, a.name])
+    )
+
     const [sorting, setSorting] = useState<SortingState>([])
 
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+    const columnHelper = createColumnHelper<Transaction>()
 
+    const columns = [
+        columnHelper.display({
+            id: "select",
+            enableSorting: false,
+            header: () => {
+                const allSelected =
+                    transactions.length > 0 &&
+                    selectedIds.length ===
+                    transactions.length
+
+                return (
+                    <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={(e) => {
+                            if (e.target.checked) {
+                                setSelectedIds(
+                                    transactions.map(
+                                        (t) => t.id
+                                    )
+                                )
+                            } else {
+                                setSelectedIds([])
+                            }
+                        }}
+                        className="h-4 w-4 accent-[#5a2d06]"
+                    />
+                )
+            },
+            cell: ({ row }) => {
+                const tx = row.original
+
+                return (
+                    <input
+                        type="checkbox"
+                        checked={selectedIds.includes(
+                            tx.id
+                        )}
+                        onChange={(e) => {
+                            if (e.target.checked) {
+                                setSelectedIds((prev) => [
+                                    ...prev,
+                                    tx.id,
+                                ])
+                            } else {
+                                setSelectedIds((prev) =>
+                                    prev.filter(
+                                        (id) => id !== tx.id
+                                    )
+                                )
+                            }
+                        }}
+                        className="h-4 w-4 accent-[#5a2d06]"
+                    />
+                )
+            },
+        }),
+
+        columnHelper.accessor("date", {
+            header: "Date",
+            cell: (info) => info.getValue(),
+        }),
+        columnHelper.accessor("merchant", {
+            header: "Merchant",
+            cell: (info) => {
+                const tx = info.row.original
+
+                return (
+                    <div>
+                        <p className="font-medium">
+                            {tx.merchant}
+                        </p>
+
+                        <p className="text-xs opacity-60">
+                            {tx.description}
+                        </p>
+                    </div>
+                )
+            },
+        }),
+        columnHelper.accessor("categoryId", {
+            header: "Category",
+            cell: (info) =>
+                categoryMap.get(
+                    info.getValue()
+
+                ) ?? "Unknown",
+        }),
+        columnHelper.accessor("accountId", {
+            header: "Account",
+            cell: (info) =>
+                accountMap.get(
+                    info.getValue()
+                ) ?? "Unknown",
+        }),
+        columnHelper.accessor("type", {
+            header: "Type",
+            cell: (info) => (
+                <span className="capitalize">
+                    {info.getValue()}
+                </span>
+            ),
+        }),
+        columnHelper.accessor("amount", {
+            header: "Amount",
+            cell: (info) => {
+                const tx = info.row.original
+
+                return (
+                    <span
+                        className={`font-medium ${tx.type === "income"
+                            ? "text-green-600"
+                            : "text-red-500"
+                            }`}
+                    >
+                        ${info
+                            .getValue()
+                            .toFixed(2)}
+                    </span>
+                )
+            },
+        }),
+    ]
 
     const table = useReactTable({
-        data,
+        data: transactions,
         columns,
+
         state: {
             sorting,
-            rowSelection,
         },
-        onSortingChange: setSorting,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        onRowSelectionChange: setRowSelection,
-        getPaginationRowModel: getPaginationRowModel(),
 
-        enableRowSelection: true,
+        onSortingChange: setSorting,
+
+        getCoreRowModel:
+            getCoreRowModel(),
+
+        getSortedRowModel:
+            getSortedRowModel(),
+
+        getPaginationRowModel:
+            getPaginationRowModel(),
+
+        initialState: {
+            pagination: {
+                pageSize: 10,
+            },
+        },
     })
 
-    const selectedRows = table
-        .getSelectedRowModel()
-        .rows.map((row) => row.original)
-
-
     return (
-        <div className="border-base-brown rounded">
-            <div className="flex gap-2 p-2 border-b rounded bg-[#954B00]/50">
+        <div className="space-y-4 bg-base-brown">
+            <table className="w-full border-collapse">
+                <thead>
+                    {table
+                        .getHeaderGroups()
+                        .map((headerGroup) => (
+                            <tr
+                                key={headerGroup.id}
+                                className="border-b bg-accent-brown/50 text-white"
+                            >
+                                {headerGroup.headers.map(
+                                    (header) => (
+                                        <th
+                                            key={header.id}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                            className="text-left p-2 cursor-pointer select-none"
+                                        >
+                                            <div className="flex items-center gap-1">
 
-                <button 
-                onClick={onAdd}
-                className="border p-2 rounded w-20">Add</button>
-                <button 
-                onClick={() => onEdit(selectedRows[0])}
-                className="border p-2 rounded w-20 disabled:opacity-50" disabled={selectedRows.length !== 1}>Edit</button>
-                <button className="border p-2 rounded w-20 disabled:opacity-50" disabled={selectedRows.length === 0} onClick={() => {
-                    const ids = selectedRows.map((t) => t.id)
-                    onDeleteSelected(ids)
-                }}>Delete</button>
+                                                {flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
 
-            </div>
-            <div className="border">
-                <table className="w-full">
-                    <thead>
-                        {table.getHeaderGroups().map((hg) => (
-                            <tr key={hg.id}>
-                                {hg.headers.map((header) => (
-                                    <th
-                                        key={header.id}
-                                        className="p-2 text-left cursor-pointer"
-                                        onClick={header.column.getToggleSortingHandler()}>
-                                        <div className="inline-flex items-center gap-1 whitespace-nowrap">
-                                            {flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                            {header.column.getCanSort() && (
-                                                {
-                                                    asc: <ArrowUp className="w-4 h-4" />,
-                                                    desc: <ArrowDown className="w-4 h-4" />,
-                                                }[header.column.getIsSorted() as string] ?? (
-                                                    <ArrowUpDown className="w-4 h-4 opacity-40" />
-                                                ))
-                                            }
-                                        </div>
-                                    </th>
-                                ))}
-                            </tr>
+                                                {header.column.id !== "select" && (
+                                                    <span className="text-xs opacity-60">
+                                                        {header.column.getIsSorted() === "asc"
+                                                            ? "↑"
+                                                            : header.column.getIsSorted() === "desc"
+                                                                ? "↓"
+                                                                : "↕"}
+                                                    </span>
+                                                )}
 
-                        ))}
-                    </thead>
-                    <tbody>
-                        {table.getRowModel().rows.map((row) => (
-                            <tr key={row.id} className="border-t border-gray-600">
-                                {row.getVisibleCells().map((cell) => (
-                                    <td key={cell.id} className="p-2">
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </td>
-                                ))}
+                                            </div>
+                                        </th>
+                                    )
+                                )}
                             </tr>
                         ))}
-                    </tbody>
-                </table>
-            </div>
-             <div className="flex justify-center mt-4">
-                <div className="flex items-center gap-2 px-3 py-2 bg-accent-brown/50 border rounded-full shadow-sm w-fit">
-                    Page {table.getState().pagination.pageIndex + 1} of {" "}
-                    {table.getPageCount()}
+                </thead>
+                <tbody>
+                    {table
+                        .getRowModel()
+                        .rows.map((row) => {
+                            const tx = row.original
+
+                            const isSelected =
+                                selectedIds.includes(tx.id)
+
+                            return (
+                                <tr
+                                    key={row.id}
+                                    className={`border-b border-accent-brown transition ${isSelected
+                                        ? "bg-yellow-100"
+                                        : "hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {row
+                                        .getVisibleCells()
+                                        .map((cell) => (
+                                            <td
+                                                key={cell.id}
+                                                className="p-2"
+                                            >
+                                                {flexRender(
+                                                    cell.column
+                                                        .columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </td>
+                                        ))}
+                                </tr>
+                            )
+                        })}
+                </tbody>
+            </table>
+            {/* PAGINATION */}
+            <div className="flex items-center justify-between m-2">
+                <div className="text-sm opacity-70">
+                    Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                </div>
+
+                <div className="flex gap-2">
                     <button
-                        className="px-3 py-1 bg-base-brown border border-accent-red rounded disabled:opacity-50 enabled:bg-base-brown/50"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}>
+                        onClick={() =>
+                            table.previousPage()
+                        }
+                        disabled={
+                            !table.getCanPreviousPage()
+                        }
+                        className="border border-accent-brown px-3 py-1 rounded disabled:opacity-50"
+                    >
                         Previous
                     </button>
-
-                    <button className="px-3 py-1 bg-base-brown/50 border border-accent-red rounded disabled:opacity-50"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
+                    <button
+                        onClick={() =>
+                            table.nextPage()
+                        }
+                        disabled={
+                            !table.getCanNextPage()
+                        }
+                        className="border border-accent-brown px-3 py-1 rounded disabled:opacity-50"
                     >
                         Next
                     </button>
-                    <select
-                        className="bg-base-brown/50 border border-accent-red p-1 rounded"
-                        value={table.getState().pagination.pageSize}
-                        onChange={(e) => {
-                            table.setPageSize(Number(e.target.value))
-                        }}
-                    >
-                        {[5, 10, 20, 50].map((size) => (
-                            <option key={size} value={size}>
-                                Number of rows: {size}
-                            </option>
-                        ))}
-                    </select>
                 </div>
             </div>
-           </div>
-        
+        </div>
     )
 }
+
+
