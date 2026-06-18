@@ -1,5 +1,6 @@
 import {
-  addDoc,
+  doc,
+  setDoc,
   collection,
   getDocs,
   query,
@@ -34,20 +35,20 @@ export const getBudgets = async (
 // ----------------------
 // CREATE
 // ----------------------
-export const createBudget = async (
+
+export const saveBudget = async (
   userId: string,
-  data: Omit<Budget, "id" | "userId">
-): Promise<Budget> => {
-  const ref = await addDoc(
-    collection(db, "budgets"),
-    {
-      userId,
-      ...data,
-    }
-  )
+  data: { categoryId: string; amount: number; month: string }
+) => {
+  const id = `${userId}_${data.categoryId}_${data.month}`
+
+  await setDoc(doc(db, "budgets", id), {
+    userId,
+    ...data,
+  })
 
   return {
-    id: ref.id,
+    id,
     userId,
     ...data,
   }
