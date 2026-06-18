@@ -6,12 +6,9 @@ import AddCategoryModal from "@/components/modals/AddCategoryModal"
 
 import { useCategories } from "@/hooks/useCategories"
 import { useTransactions } from "@/hooks/useTransactions"
-import { useAccounts } from "@/hooks/useAccounts"
-
-import { getAccountBalances } from "@/services/transactions/transactionCalculations"
 
 import type { Category } from "@/types/category"
-import type { Budget } from "@/types/budget"
+
 
 import SavingsGoalsCard from "@/components/budget/SavingsGoalsCard"
 import TopCategoriesCard from "@/components/budget/TopCategoriesCard"
@@ -19,41 +16,36 @@ import TopCategoriesCard from "@/components/budget/TopCategoriesCard"
 import bg from "@/assets/beige-bg.png"
 
 import { useBudgets } from "@/hooks/useBudget"
+import AiCoach from "@/components/ai/AiCoach"
 
 export default function BudgetPage() {
   const { categories } = useCategories()
   const { transactions } = useTransactions()
-  const { accounts } = useAccounts()
   const {
-    budgets, 
+    budgets,
     addBudget,
   } = useBudgets();
 
-  const accountBalances = getAccountBalances(
-    transactions,
-    accounts
-  )
-
   const goals = [
-  {
-    id: "1",
-    name: "Emergency Fund",
-    current: 2500,
-    target: 10000,
-  },
-  {
-    id: "2",
-    name: "Vacation",
-    current: 1200,
-    target: 3000,
-  },
-  {
-    id: "3",
-    name: "New Car",
-    current: 5000,
-    target: 15000,
-  },
-]
+    {
+      id: "1",
+      name: "Emergency Fund",
+      current: 2500,
+      target: 10000,
+    },
+    {
+      id: "2",
+      name: "Vacation",
+      current: 1200,
+      target: 3000,
+    },
+    {
+      id: "3",
+      name: "New Car",
+      current: 5000,
+      target: 15000,
+    },
+  ]
 
   // -----------------------
   // BUDGET STATE
@@ -105,18 +97,18 @@ export default function BudgetPage() {
     setEditBudget(String(existing?.amount ?? 0))
   }
 
- const handleSave = async (
-  category: Category,
-  amount: number
-) => {
-  await addBudget({
-    categoryId: category.id,
-    amount,
-    month: currentMonth,
-  })
+  const handleSave = async (
+    category: Category,
+    amount: number
+  ) => {
+    await addBudget({
+      categoryId: category.id,
+      amount,
+      month: currentMonth,
+    })
 
-  setEditingId(null)
-}
+    setEditingId(null)
+  }
 
   return (
     <div
@@ -134,7 +126,7 @@ export default function BudgetPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           <SavingsGoalsCard
-          goals = { goals }/>
+            goals={goals} />
 
           <TopCategoriesCard
             transactions={transactions}
@@ -182,6 +174,12 @@ export default function BudgetPage() {
         <AddCategoryModal
           open={isAddCategoryOpen}
           onClose={() => setIsAddCategoryOpen(false)}
+        />
+
+        <AiCoach
+          transactions={transactions}
+          budgets={budgets}
+          currentMonth={currentMonth}
         />
 
       </div>

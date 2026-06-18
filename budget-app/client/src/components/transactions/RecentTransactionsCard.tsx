@@ -7,7 +7,6 @@ type Props = {
 
 export default function RecentTransactionsCard({
     transactions,
-    categories,
 }: Props) {
 
     const recent = [...transactions]
@@ -72,8 +71,8 @@ export default function RecentTransactionsCard({
                         <div
                             className={
                                 t.type === "expense"
-                                    ? "text-red-400 font-semibold"
-                                    : "text-green-400 font-semibold"
+                                    ? "text-red-600 font-semibold"
+                                    : "text-green-600 font-semibold"
                             }
                         >
                             {t.type === "expense" ? "-" : "+"}

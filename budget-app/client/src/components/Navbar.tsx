@@ -2,9 +2,24 @@ import { NavLink } from "react-router-dom"
 import logo from "@/assets/cash_cow_logo.png"
 import { useAuth } from "@/context/AuthContext"
 import cow_mascot from "@/assets/cow_mascot.png"
+import { signOut } from "firebase/auth"
+import { auth } from "@/firebase/firebase"
+import { useNavigate } from "react-router-dom"
 
 export default function Navbar() {
+
     const { user } = useAuth()
+
+    const navigate = useNavigate()
+
+    const logout = async () => {
+        try {
+            await signOut(auth)
+            navigate("/login")
+        } catch (error) {
+            console.error("Logout failed:", error)
+        }
+    }
     return (
         <nav
             className="
@@ -76,7 +91,15 @@ export default function Navbar() {
                     ) : (
                         <span>Not signed in</span>
                     )}
+                    <button
+                    onClick={logout}
+                    className="bg-accent-brown px-2 rounded text-white text-sm"
+                >
+                    Log out
+                </button>
                 </div>
+
+                
 
 
             </div>

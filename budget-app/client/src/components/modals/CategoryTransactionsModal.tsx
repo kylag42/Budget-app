@@ -28,7 +28,7 @@ export default function CategoryTransactionsModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-[500px] max-h-[80vh] overflow-y-auto rounded p-4">
+      <div className="bg-base-brown w-[500px] max-h-[80vh] overflow-y-auto rounded p-4 border-3 border-accent-brown">
         
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
@@ -38,14 +38,14 @@ export default function CategoryTransactionsModal({
 
           <button
             onClick={onClose}
-            className="text-gray-500"
+            className="text-accent-brown"
           >
             ✕
           </button>
         </div>
 
         {/* SUMMARY */}
-        <div className="mb-4 text-sm opacity-70">
+        <div className="mb-4 text-sm">
           Total Spent: ${totalSpent} • Transactions:{" "}
           {filtered.length}
         </div>
@@ -55,7 +55,7 @@ export default function CategoryTransactionsModal({
           {filtered.map((t) => (
             <div
               key={t.id}
-              className="border rounded p-2 flex justify-between"
+              className="bg-accent-brown/50 border border-accent-brown rounded p-2 flex justify-between"
             >
               <div>
                 <p className="font-medium">
@@ -66,13 +66,7 @@ export default function CategoryTransactionsModal({
                 </p>
               </div>
 
-              <div
-                className={
-                  t.amount < 0
-                    ? "text-red-500"
-                    : "text-green-500"
-                }
-              >
+              <div>
                 ${Math.abs(t.amount)}
               </div>
             </div>

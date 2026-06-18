@@ -4,10 +4,10 @@ import {
 } from "firebase/auth"
 
 import { auth } from "@/firebase/firebase"
+import { saveBudget } from "@/api/firestore/budgetService"
 
 import {
   getBudgets,
-  createBudget,
 } from "@/api/firestore/budgetService"
 
 import type { Budget } from "@/types/budget"
@@ -42,6 +42,7 @@ export function useBudgets() {
     getBudgets(userId).then(setBudgets)
   }, [userId])
 
+
   // -----------------------
   // ADD / SAVE BUDGET
   // -----------------------
@@ -50,10 +51,7 @@ export function useBudgets() {
   ) => {
     if (!userId) return
 
-    const newBudget = await createBudget(
-      userId,
-      data
-    )
+    const newBudget = await saveBudget(userId, data)
 
     setBudgets((prev) => {
       const filtered = prev.filter(

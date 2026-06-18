@@ -3,14 +3,17 @@ import { loginUser, signInWithGoogle } from "@/api/auth"
 import bg from "@/assets/beige-bg.png"
 import cow_mascot from "@/assets/cow_mascot.png"
 import cash_cow from "@/assets/cash_cow_logo.png"
-import  FloatingIcons from "@/components/FloatingIcons"
+import FloatingIcons from "@/components/FloatingIcons"
 import { useNavigate } from "react-router-dom"
-import{ auth} from "@/firebase/firebase"
+
+
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
+    const [error, setError] = useState("")
+    const [message, setMessage] = useState("")
 
     const handleLogin = async (
         e: React.FormEvent
@@ -18,38 +21,39 @@ export default function LoginPage() {
         e.preventDefault()
 
         try {
+            setError("")
+            setMessage("")
             await loginUser(email, password)
 
-            alert("Logged in")
-            console.log(auth.currentUser)
+
             navigate("/")
-        } catch (err) {
+        } catch (err: any) {
             console.error(err)
-            alert("Login Failed")
+            setError("Invalid email or password.")
         }
     }
 
     const handleGoogleLogin =
-    async () => {
-        try {
-            await signInWithGoogle()
+        async () => {
+            try {
+                await signInWithGoogle()
 
-            navigate("/")
-        } catch (err) {
-            console.error(err)
+                navigate("/")
+            } catch (err) {
+                console.error(err)
+            }
         }
-    }
 
 
 
     return (
         <div className="relative min-h-screen flex items-center justify-center">
-        <div className="absolute inset-0 bg-cover bg-center overflow-hidden pointer-events-none z-0"
-            style={{ backgroundImage: `url(${bg})` }}
+            <div className="absolute inset-0 bg-cover bg-center overflow-hidden pointer-events-none z-0"
+                style={{ backgroundImage: `url(${bg})` }}
             />
 
-                <FloatingIcons/>
-        
+            <FloatingIcons />
+
             <div className="relative z-10 flex-col items-center">
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-4 -mb-10">
@@ -95,6 +99,11 @@ export default function LoginPage() {
                             className="w-full border border-accent-brown p-2 rounded"
                         />
 
+                        <div className="text-red-600">
+                            {message && <p>{message}</p>}
+                            {error && <p>{error}</p>}
+                        </div>
+
                         <button
                             type="submit"
                             className="w-full bg-accent-brown text-white p-2 rounded"
@@ -102,21 +111,21 @@ export default function LoginPage() {
                             Login
                         </button>
                         <button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        className="w-full bg-white border border-gray-300 p-2 rounded flex items-center justify-center gap-2 -mt-2"
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            className="w-full bg-white border border-gray-300 p-2 rounded flex items-center justify-center gap-2 -mt-2"
                         >
                             <img
-                            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                            alt="google"
-                            className="w-5 h-5"
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                alt="google"
+                                className="w-5 h-5"
                             />
                             Sign in with Google
-                       </button>
-                        <p className="text-center text-xs">Don't have an account? <a href="/register" className="text-blue-500 hover:text-blue-600 underline">Sign up.</a></p> 
-                        
+                        </button>
+                        <p className="text-center text-xs">Don't have an account? <a href="/register" className="text-blue-500 hover:text-blue-600 underline">Sign up.</a></p>
+
                     </form>
-                    
+
                 </div>
             </div>
         </div>

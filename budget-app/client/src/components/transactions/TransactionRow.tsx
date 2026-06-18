@@ -15,10 +15,6 @@ type Props = {
 export default function TransactionRow({
   transaction,
   categoryName,
-  selectedIds,
-  setSelectedIds,
-  onEdit,
-  onDelete,
 }: Props) {
   return (
     <tr className="border-b border-accent-brown hover:bg-base-brown/20 transition">

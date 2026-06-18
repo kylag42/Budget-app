@@ -61,7 +61,7 @@ export default function RegisterPage() {
 
             <FloatingIcons />
 
-            <div className="relative z-10 flex-col items-center">
+            <div className="relative z-10 flex-col items-center mb-2">
                 <div className="flex flex-col items-center">
                     <div className="flex items-center gap-4 -mb-10">
                         <img
